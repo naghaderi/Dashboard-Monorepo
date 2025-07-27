@@ -32,13 +32,19 @@ type OtpResponseEntity {
   message: String!
 }
 
+type TokenResponse {
+  accessToken: String!
+  refreshToken: String!
+  message: String!
+}
+
 type Query {
   ping: String!
 }
 
 type Mutation {
   sendOtp(input: SendOtpInput!): OtpResponseEntity!
-  checkOtp(input: CheckOtpInput!): String!
+  checkOtp(input: CheckOtpInput!): TokenResponse!
 }
 
 input SendOtpInput {
