@@ -2,6 +2,32 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type OtpEntity {
+  id: ID!
+  code: String!
+  expires_in: DateTime!
+  userId: String!
+  user: UserEntity!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type UserEntity {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  mobile: String!
+  mobile_verify: Boolean!
+  created_at: DateTime!
+  updated_at: DateTime!
+  otpId: String
+  otp: OtpEntity
+  otps: [OtpEntity!]
+}
+
 type Query {
   testAuth: String!
 }
