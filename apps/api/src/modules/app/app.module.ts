@@ -3,9 +3,6 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { PrismaModule } from "../prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "../auth/auth.module";
-import { UserModule } from "../user/user.module";
-import { RolesGuard } from "src/common/guards/roles.guard";
-import { APP_GUARD } from "@nestjs/core";
 import { Module } from "@nestjs/common";
 import { join } from "path";
 
@@ -16,12 +13,10 @@ import { join } from "path";
       autoSchemaFile: join(process.cwd(), "src/graphql/schema.gql"),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
-
-    AuthModule,
-    UserModule,
     PrismaModule,
+    AuthModule,
   ],
   controllers: [],
-  providers: [{ provide: APP_GUARD, useClass: RolesGuard }],
+  providers: [],
 })
 export class AppModule {}

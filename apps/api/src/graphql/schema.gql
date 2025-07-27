@@ -2,48 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AuthPayloadEntity {
-  id: String!
-  name: String!
-  avatar: String
-  role: Role!
-  accessToken: String!
-}
-
-"""User role"""
-enum Role {
-  STUDENT
-  CREATOR
-  ADMIN
-}
-
-type User {
-  id: ID!
-  name: String!
-  email: String!
-  bio: String
-  avatar: String
-}
-
 type Query {
-  healthCheck: String!
-}
-
-type Mutation {
-  signIn(signInInput: SignInInput!): AuthPayloadEntity!
-  createUser(createUserInput: CreateUserInput!): User!
-}
-
-input SignInInput {
-  email: String!
-  password: String!
-}
-
-input CreateUserInput {
-  name: String!
-  email: String!
-  password: String!
-  bio: String
-  avatar: String
-  role: Role! = STUDENT
+  testAuth: String!
 }
