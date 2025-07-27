@@ -28,6 +28,24 @@ type UserEntity {
   otps: [OtpEntity!]
 }
 
+type OtpResponseEntity {
+  message: String!
+}
+
 type Query {
-  testAuth: String!
+  ping: String!
+}
+
+type Mutation {
+  sendOtp(input: SendOtpInput!): OtpResponseEntity!
+  checkOtp(input: CheckOtpInput!): String!
+}
+
+input SendOtpInput {
+  mobile: String!
+}
+
+input CheckOtpInput {
+  mobile: String!
+  code: String!
 }
