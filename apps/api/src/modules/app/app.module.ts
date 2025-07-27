@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { GraphQLModule } from "@nestjs/graphql";
 import { PrismaModule } from "../prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
+import { UserModule } from "../user/user.module";
 import { AuthModule } from "../auth/auth.module";
 import { Module } from "@nestjs/common";
 import { join } from "path";
@@ -15,6 +16,7 @@ import { join } from "path";
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

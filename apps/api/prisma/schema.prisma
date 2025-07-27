@@ -11,3 +11,28 @@ enum Role {
   USER
   ADMIN
 }
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  first_name    String
+  last_name     String
+  mobile        String   @unique
+  mobile_verify Boolean  @default(false)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  otpId String? @unique @db.Uuid
+  otp   Otp?    @relation("UserLatestOtp", fields: [otpId], references: [id])
+
+  otps Otp[] @relation("UserAllOtps")
+}
+
+model Otp {
+  id         String   @id @default(uuid()) @db.Uuid
+  code       String
+  expires_in DateTime
+  userId     String   @db.Uuid
+  user       User     @relation("UserAllOtps", fields: [userId], references: [id], onDelete: Cascade)
+
+  user_for_otpId User? @relation("UserLatestOtp")
+}
