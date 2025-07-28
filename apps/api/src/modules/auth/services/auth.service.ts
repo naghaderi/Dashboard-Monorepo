@@ -68,6 +68,18 @@ export class AuthService {
     return { message: "OTP sent successfully." };
   }
 
+  async generateTokens(payload: { id: string; mobile: string }) {
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.config.get<string>("ACCESS_TOKEN_SECRET"),
+      expiresIn: this.config.get<string>("ACCESS_TOKEN_EXPIRES_IN"),
+    });
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.config.get<string>("REFRESH_TOKEN_SECRET"),
+      expiresIn: this.config.get<string>("REFRESH_TOKEN_EXPIRES_IN"),
+    });
+    return { accessToken, refreshToken };
+  }
+
   async checkOtp(otpDto: CheckOtpInput) {
     const { mobile, code } = otpDto;
     const user = await this.prismaService.user.findUnique({
@@ -87,22 +99,10 @@ export class AuthService {
         otp: { disconnect: true },
       },
     });
-    const accessToken = this.jwtService.sign(
-      { id: user.id, mobile },
-      {
-        secret: this.config.get<string>("ACCESS_TOKEN_SECRET"),
-        expiresIn: this.config.get<string>("ACCESS_TOKEN_EXPIRES_IN"),
-      }
-    );
-
-    const refreshToken = this.jwtService.sign(
-      { id: user.id, mobile },
-      {
-        secret: this.config.get<string>("REFRESH_TOKEN_SECRET"),
-        expiresIn: this.config.get<string>("REFRESH_TOKEN_EXPIRES_IN"),
-      }
-    );
-
-    return { accessToken, refreshToken, message: "OTP verified successfully." };
+    const tokens = await this.generateTokens({ id: user.id, mobile });
+    return {
+      ...tokens,
+      message: "OTP verified successfully.",
+    };
   }
 }
