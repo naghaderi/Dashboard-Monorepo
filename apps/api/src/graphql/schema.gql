@@ -21,11 +21,17 @@ type UserEntity {
   last_name: String!
   mobile: String!
   mobile_verify: Boolean!
+  role: Role!
   created_at: DateTime!
   updated_at: DateTime!
   otpId: String
   otp: OtpEntity
   otps: [OtpEntity!]
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 type OtpResponseEntity {
@@ -40,6 +46,8 @@ type TokenResponse {
 
 type Query {
   ping: String!
+  me: UserEntity!
+  users: [UserEntity!]!
 }
 
 type Mutation {

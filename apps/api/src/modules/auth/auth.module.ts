@@ -12,14 +12,15 @@ import { Module } from "@nestjs/common";
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configureService: ConfigService) => ({
-        secret: configureService.get<string>("JWT_SECRET"),
+        secret: configureService.get<string>("ACCESS_TOKEN_SECRET"),
         signOptions: {
-          expiresIn: configureService.get<string>("JWT_EXPIRES_IN"),
+          expiresIn: configureService.get<string>("ACCESS_TOKEN_EXPIRES_IN"),
         },
       }),
     }),
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthResolver, PrismaService, JwtService],
+  exports: [AuthService],
 })
 export class AuthModule {}

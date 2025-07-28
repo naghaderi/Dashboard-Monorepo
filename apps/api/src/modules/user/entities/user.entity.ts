@@ -1,5 +1,10 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
+import { ObjectType, Field, ID, registerEnumType } from "@nestjs/graphql";
 import { OtpEntity } from "./otp.entity";
+import { Role } from "@prisma/client";
+
+registerEnumType(Role, {
+  name: "Role",
+});
 
 @ObjectType()
 export class UserEntity {
@@ -17,6 +22,9 @@ export class UserEntity {
 
   @Field()
   mobile_verify: boolean;
+
+  @Field(() => Role)
+  role: Role;
 
   @Field()
   created_at: Date;

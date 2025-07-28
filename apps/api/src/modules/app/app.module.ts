@@ -4,7 +4,9 @@ import { PrismaModule } from "../prisma/prisma.module";
 import { ConfigModule } from "@nestjs/config";
 import { UserModule } from "../user/user.module";
 import { AuthModule } from "../auth/auth.module";
-import { JwtModule } from "@nestjs/jwt";
+import { RolesGuard } from "src/common/guards/roles.guard";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthGuard } from "src/common/guards/auth.guard";
 import { Module } from "@nestjs/common";
 import { join } from "path";
 
@@ -18,9 +20,17 @@ import { join } from "path";
     PrismaModule,
     AuthModule,
     UserModule,
-    JwtModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -18,13 +18,12 @@ model User {
   last_name     String
   mobile        String   @unique
   mobile_verify Boolean  @default(false)
+  role          Role     @default(USER)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-
-  otpId String? @unique @db.Uuid
-  otp   Otp?    @relation("UserLatestOtp", fields: [otpId], references: [id])
-
-  otps Otp[] @relation("UserAllOtps")
+  otpId         String?  @unique @db.Uuid
+  otp           Otp?     @relation("UserLatestOtp", fields: [otpId], references: [id])
+  otps          Otp[]    @relation("UserAllOtps")
 }
 
 model Otp {

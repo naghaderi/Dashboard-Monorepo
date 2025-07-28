@@ -4,13 +4,14 @@ import { PrismaService } from "src/modules/prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { isBefore } from "date-fns";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly config: ConfigService
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService
   ) {}
 
   async createOtpForUser(userId: string, mobile: string) {
@@ -61,6 +62,7 @@ export class AuthService {
           mobile,
           first_name: "Unregistered",
           last_name: "User",
+          role: "USER",
         },
       });
     }
@@ -68,14 +70,14 @@ export class AuthService {
     return { message: "OTP sent successfully." };
   }
 
-  async generateTokens(payload: { id: string; mobile: string }) {
+  async generateTokens(payload: { id: string; mobile: string; role: Role }) {
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get<string>("ACCESS_TOKEN_SECRET"),
-      expiresIn: this.config.get<string>("ACCESS_TOKEN_EXPIRES_IN"),
+      secret: this.configService.get<string>("ACCESS_TOKEN_SECRET"),
+      expiresIn: this.configService.get<string>("ACCESS_TOKEN_EXPIRES_IN"),
     });
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get<string>("REFRESH_TOKEN_SECRET"),
-      expiresIn: this.config.get<string>("REFRESH_TOKEN_EXPIRES_IN"),
+      secret: this.configService.get<string>("REFRESH_TOKEN_SECRET"),
+      expiresIn: this.configService.get<string>("REFRESH_TOKEN_EXPIRES_IN"),
     });
     return { accessToken, refreshToken };
   }
@@ -99,10 +101,41 @@ export class AuthService {
         otp: { disconnect: true },
       },
     });
-    const tokens = await this.generateTokens({ id: user.id, mobile });
+    const tokens = await this.generateTokens({
+      id: user.id,
+      mobile: user.mobile,
+      role: user.role,
+    });
     return {
       ...tokens,
       message: "OTP verified successfully.",
     };
+  }
+
+  async verifyAccessToken(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>("ACCESS_TOKEN_SECRET"),
+      });
+      if (!payload || typeof payload !== "object" || !payload.id)
+        throw new UnauthorizedException("Invalid token payload");
+      const user = await this.prismaService.user.findUnique({
+        where: { id: payload.id },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          mobile: true,
+          mobile_verify: true,
+          role: true,
+          created_at: true,
+          updated_at: true,
+        },
+      });
+      if (!user) throw new UnauthorizedException("User not found");
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException("Invalid or expired token");
+    }
   }
 }
