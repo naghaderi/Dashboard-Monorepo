@@ -1,16 +1,29 @@
-// next.config.js
+import type { NextConfig } from 'next'
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    remotePatterns: [
+const nextConfig: NextConfig = {
+  basePath: process.env.BASEPATH,
+  redirects: async () => {
+    return [
       {
-        protocol: "https",
-        hostname: "picsum.photos",
-        port: "",
+        source: '/',
+        destination: '/en/dashboards/crm',
+        permanent: true,
+        locale: false
       },
-    ],
-  },
-};
+      {
+        source: '/:lang(en|fr|ar)',
+        destination: '/:lang/dashboards/crm',
+        permanent: true,
+        locale: false
+      },
+      {
+        source: '/((?!(?:en|fr|ar|front-pages|favicon.ico)\\b)):path',
+        destination: '/en/:path',
+        permanent: true,
+        locale: false
+      }
+    ]
+  }
+}
 
-module.exports = nextConfig;
+export default nextConfig
