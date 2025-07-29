@@ -1,10 +1,14 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { SendOtpInput, CheckOtpInput } from "../dto/auth.input";
+import { SendOtpInput, CheckOtpInput } from "../dto/otp.input";
 import { PrismaService } from "src/modules/prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
+import { SignUpInput } from "../dto/signUp.input";
 import { JwtService } from "@nestjs/jwt";
+import { LoginInput } from "../dto/signIn.input";
 import { isBefore } from "date-fns";
 import { Role } from "@prisma/client";
+
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class AuthService {
@@ -13,6 +17,54 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService
   ) {}
+
+  async signUp(signUp: SignUpInput) {
+    const { email, password, confirm_password, mobile, first_name, last_name } =
+      signUp;
+    if (password !== confirm_password)
+      throw new UnauthorizedException("Passwords do not match");
+    const [emailExists, mobileExists] = await Promise.all([
+      this.checkEmailExists(email),
+      this.checkMobileExists(mobile),
+    ]);
+    if (emailExists)
+      throw new UnauthorizedException("Email is already registered");
+    if (mobileExists)
+      throw new UnauthorizedException("Mobile number is already registered");
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await this.prismaService.user.create({
+      data: {
+        email,
+        mobile,
+        last_name,
+        first_name,
+        role: "USER",
+        mobile_verify: false,
+        password: hashedPassword,
+      },
+    });
+    return {
+      message: "Registration successful",
+    };
+  }
+
+  async signIn(input: LoginInput) {
+    const { email, password } = input;
+    const user = await this.prismaService.user.findUnique({ where: { email } });
+    if (!user || !user.password)
+      throw new UnauthorizedException("Invalid credentials");
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (!passwordValid) throw new UnauthorizedException("Invalid credentials");
+    const tokens = await this.generateTokens({
+      id: user.id,
+      mobile: user.mobile,
+      role: user.role,
+    });
+    return {
+      ...tokens,
+      message: "Login successful",
+    };
+  }
 
   async createOtpForUser(userId: string, mobile: string) {
     const now = new Date();
@@ -137,5 +189,21 @@ export class AuthService {
     } catch (err) {
       throw new UnauthorizedException("Invalid or expired token");
     }
+  }
+
+  async checkEmailExists(email: string) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    return !!existingUser;
+  }
+
+  async checkMobileExists(mobile: string) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { mobile },
+      select: { id: true },
+    });
+    return !!existingUser;
   }
 }

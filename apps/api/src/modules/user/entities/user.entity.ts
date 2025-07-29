@@ -17,6 +17,12 @@ export class UserEntity {
   @Field()
   last_name: string;
 
+  @Field({ nullable: true })
+  email?: string;
+
+  @Field({ nullable: true })
+  password?: string;
+
   @Field()
   mobile: string;
 

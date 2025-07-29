@@ -7,7 +7,7 @@ export class SendOtpInput {
   @IsString()
   @IsNotEmpty()
   @Matches(/^09\d{9}$/, {
-    message: "شماره موبایل باید معتبر باشد (مثل 0912...)",
+    message: "Mobile number must be valid (e.g. 0912...)",
   })
   mobile: string;
 }
@@ -18,12 +18,14 @@ export class CheckOtpInput {
   @IsString()
   @IsNotEmpty()
   @Matches(/^09\d{9}$/, {
-    message: "شماره موبایل باید معتبر باشد (مثل 0912...)",
+    message: "Mobile number must be valid (e.g. 0912...)",
   })
   mobile: string;
 
   @Field()
   @IsString()
-  @Length(4, 6, { message: "کد باید بین 4 تا 6 رقم باشد" })
+  @Length(4, 6, {
+    message: "Code must be between 4 and 6 digits",
+  })
   code: string;
 }

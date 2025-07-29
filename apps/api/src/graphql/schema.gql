@@ -19,6 +19,8 @@ type UserEntity {
   id: ID!
   first_name: String!
   last_name: String!
+  email: String
+  password: String
   mobile: String!
   mobile_verify: Boolean!
   role: Role!
@@ -53,6 +55,8 @@ type Query {
 type Mutation {
   sendOtp(input: SendOtpInput!): OtpResponseEntity!
   checkOtp(input: CheckOtpInput!): TokenResponse!
+  signUp(input: SignUpInput!): TokenResponse!
+  signIn(input: LoginInput!): TokenResponse!
 }
 
 input SendOtpInput {
@@ -62,4 +66,18 @@ input SendOtpInput {
 input CheckOtpInput {
   mobile: String!
   code: String!
+}
+
+input SignUpInput {
+  first_name: String!
+  last_name: String!
+  email: String!
+  mobile: String!
+  password: String!
+  confirm_password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
 }
