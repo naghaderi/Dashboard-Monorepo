@@ -1,26 +1,19 @@
 'use client'
 
-// React Imports
-import { useRef, useState } from 'react'
-
-// Next Imports
-import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
+import { useRef, useState } from 'react'
+import { useSettings } from '@core/hooks/useSettings'
 
-// MUI Imports
-import IconButton from '@mui/material/IconButton'
-import Popper from '@mui/material/Popper'
-import Fade from '@mui/material/Fade'
-import Paper from '@mui/material/Paper'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-import MenuList from '@mui/material/MenuList'
-import MenuItem from '@mui/material/MenuItem'
-
-// Type Imports
 import type { Locale } from '@configs/i18n'
 
-// Hook Imports
-import { useSettings } from '@core/hooks/useSettings'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import IconButton from '@mui/material/IconButton'
+import MenuItem from '@mui/material/MenuItem'
+import MenuList from '@mui/material/MenuList'
+import Popper from '@mui/material/Popper'
+import Paper from '@mui/material/Paper'
+import Link from 'next/link'
+import Fade from '@mui/material/Fade'
 
 type LanguageDataType = {
   langCode: Locale
@@ -30,13 +23,10 @@ type LanguageDataType = {
 const getLocalePath = (pathName: string, locale: string) => {
   if (!pathName) return '/'
   const segments = pathName.split('/')
-
   segments[1] = locale
-
   return segments.join('/')
 }
 
-// Vars
 const languageData: LanguageDataType[] = [
   {
     langCode: 'en',
@@ -49,29 +39,28 @@ const languageData: LanguageDataType[] = [
   {
     langCode: 'ar',
     langName: 'Arabic'
+  },
+  {
+    langCode: 'fa',
+    langName: 'Persian'
   }
 ]
 
 const LanguageDropdown = () => {
-  // States
+  // ========= State and Refs =========
   const [open, setOpen] = useState(false)
-
-  // Refs
   const anchorRef = useRef<HTMLButtonElement>(null)
 
-  // Hooks
+  // ========= Params =========
   const pathName = usePathname()
   const { settings } = useSettings()
   const { lang } = useParams()
 
-  const handleClose = () => {
-    setOpen(false)
-  }
+  // ========= Handlers =========
+  const handleClose = () => setOpen(false)
+  const handleToggle = () => setOpen(prevOpen => !prevOpen)
 
-  const handleToggle = () => {
-    setOpen(prevOpen => !prevOpen)
-  }
-
+  // ========= Render =========
   return (
     <>
       <IconButton ref={anchorRef} onClick={handleToggle} className='text-textPrimary'>
