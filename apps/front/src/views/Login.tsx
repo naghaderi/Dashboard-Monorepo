@@ -17,8 +17,8 @@ import { Locale } from '@/configs/i18n'
 
 import CustomTextField from '@core/components/mui/TextField'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import classnames from 'classnames'
 import themeConfig from '@configs/themeConfig'
+import classnames from 'classnames'
 import Logo from '@components/layout/shared/Logo'
 
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -168,7 +168,10 @@ const Login = ({ mode }: { mode: SystemMode }) => {
               </FlipCardFace>
 
               <FlipCardBack>
-                <form className='flex flex-col gap-6' onSubmit={checkForm.handleSubmit(checkOtpMutation.mutate)}>
+                <form
+                  className='flex flex-col gap-6'
+                  onSubmit={checkForm.handleSubmit((values: TCheckOtpInput) => checkOtpMutation.mutate(values))}
+                >
                   <CustomTextField
                     fullWidth
                     label='Mobile'
