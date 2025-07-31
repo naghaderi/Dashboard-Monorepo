@@ -6,6 +6,11 @@ export class SendOtpInput {
   @Field()
   @IsString()
   @IsNotEmpty()
+  username: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty()
   @Matches(/^09\d{9}$/, {
     message: "Mobile number must be valid (e.g. 0912...)",
   })

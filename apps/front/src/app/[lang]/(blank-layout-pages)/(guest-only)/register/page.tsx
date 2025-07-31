@@ -1,11 +1,8 @@
-// Next Imports
-import type { Metadata } from 'next'
+import { getServerMode } from '@core/utils/serverHelpers'
 
-// Component Imports
 import Register from '@views/Register'
 
-// Server Action Imports
-import { getServerMode } from '@core/utils/serverHelpers'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Register',
@@ -13,9 +10,7 @@ export const metadata: Metadata = {
 }
 
 const RegisterPage = async () => {
-  // Vars
   const mode = await getServerMode()
-
   return <Register mode={mode} />
 }
 

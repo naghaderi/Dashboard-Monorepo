@@ -4,7 +4,6 @@ import { PrismaService } from "src/modules/prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { SignUpInput } from "../dto/signUp.input";
 import { JwtService } from "@nestjs/jwt";
-import { LoginInput } from "../dto/signIn.input";
 import { isBefore } from "date-fns";
 import { Role } from "@prisma/client";
 
@@ -48,24 +47,6 @@ export class AuthService {
     };
   }
 
-  async signIn(input: LoginInput) {
-    const { email, password } = input;
-    const user = await this.prismaService.user.findUnique({ where: { email } });
-    if (!user || !user.password)
-      throw new UnauthorizedException("Invalid credentials");
-    const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) throw new UnauthorizedException("Invalid credentials");
-    const tokens = await this.generateTokens({
-      id: user.id,
-      mobile: user.mobile,
-      role: user.role,
-    });
-    return {
-      ...tokens,
-      message: "Login successful",
-    };
-  }
-
   async createOtpForUser(userId: string, mobile: string) {
     const now = new Date();
     const existingOtp = await this.prismaService.otp.findFirst({
@@ -106,17 +87,20 @@ export class AuthService {
     return otp;
   }
 
-  async sendOtp({ mobile }: SendOtpInput) {
+  async sendOtp({ username, mobile }: SendOtpInput) {
     let user = await this.prismaService.user.findUnique({ where: { mobile } });
     if (!user) {
       user = await this.prismaService.user.create({
         data: {
+          username,
           mobile,
           first_name: "Unregistered",
           last_name: "User",
           role: "USER",
         },
       });
+    } else if (user.username !== username) {
+      throw new UnauthorizedException("Username and mobile do not match");
     }
     await this.createOtpForUser(user.id, mobile);
     return { message: "OTP sent successfully." };

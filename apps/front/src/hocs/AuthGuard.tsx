@@ -1,15 +1,26 @@
-// Third-party Imports
-import { getServerSession } from 'next-auth'
+'use client'
 
-// Type Imports
-import type { Locale } from '@configs/i18n'
+import { useEffect, useState } from 'react'
+import { getLocalizedUrl } from '@/utils/i18n'
+import { useRouter } from 'next/navigation'
+
 import type { ChildrenType } from '@core/types'
+import type { Locale } from '@configs/i18n'
 
-// Component Imports
-import AuthRedirect from '@/components/AuthRedirect'
+export default function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
+  // ======== States ========
+  const [authenticated, setAuthenticated] = useState(false)
 
-export default async function AuthGuard({ children, locale }: ChildrenType & { locale: Locale }) {
-  const session = await getServerSession()
+  // ======== Effects ========
+  const router = useRouter()
 
-  return <>{session ? children : <AuthRedirect lang={locale} />}</>
+  // ========= Check Authentication ========
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) router.replace(getLocalizedUrl('/login', locale))
+    else setAuthenticated(true)
+  }, [locale, router])
+
+  // ========= Render =========
+  return authenticated ? <>{children}</> : null
 }

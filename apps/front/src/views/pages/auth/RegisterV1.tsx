@@ -83,7 +83,7 @@ const RegisterV1 = () => {
               }
             />
             <Button fullWidth variant='contained' type='submit'>
-              Sign Up
+              Sign Up111
             </Button>
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>Already have an account?</Typography>

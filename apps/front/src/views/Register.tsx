@@ -1,42 +1,27 @@
 'use client'
 
-// React Imports
+import { styled, useTheme } from '@mui/material/styles'
+import { useImageVariant } from '@core/hooks/useImageVariant'
+import { getLocalizedUrl } from '@/utils/i18n'
+import { useMutation } from '@tanstack/react-query'
+import { useSettings } from '@core/hooks/useSettings'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
-// Next Imports
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-
-// MUI Imports
+import FormControlLabel from '@mui/material/FormControlLabel'
+import CustomTextField from '@core/components/mui/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
-
-// Third-party Imports
 import classnames from 'classnames'
-
-// Type Imports
-import type { SystemMode } from '@core/types'
-import type { Locale } from '@configs/i18n'
-
-// Component Imports
+import Checkbox from '@mui/material/Checkbox'
+import Divider from '@mui/material/Divider'
+import Button from '@mui/material/Button'
+import Link from 'next/link'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
+import { signUp } from '@/actions/signUp'
 
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useSettings } from '@core/hooks/useSettings'
-
-// Util Imports
-import { getLocalizedUrl } from '@/utils/i18n'
-
-// Styled Custom Components
 const RegisterIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
   blockSize: 'auto',
@@ -60,11 +45,20 @@ const MaskImg = styled('img')({
   zIndex: -1
 })
 
-const Register = ({ mode }: { mode: SystemMode }) => {
-  // States
+const Register = ({ mode }: { mode: 'light' | 'dark' }) => {
+  // ========== States ==========
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    confirm_password: '',
+    mobile: ''
+  })
+  const [agreed, setAgreed] = useState(false)
 
-  // Vars
+  // ========== Constants ==========
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
   const darkIllustration = '/images/illustrations/auth/v2-register-dark.png'
@@ -72,7 +66,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   const borderedDarkIllustration = '/images/illustrations/auth/v2-register-dark-border.png'
   const borderedLightIllustration = '/images/illustrations/auth/v2-register-light-border.png'
 
-  // Hooks
+  // ========== Hooks ==========
   const { lang: locale } = useParams()
   const { settings } = useSettings()
   const theme = useTheme()
@@ -87,16 +81,45 @@ const Register = ({ mode }: { mode: SystemMode }) => {
     borderedDarkIllustration
   )
 
+  const {
+    mutate: handleSignUp,
+    isPending,
+    error
+  } = useMutation({
+    mutationFn: () => signUp(formData),
+    onSuccess: data => {
+      console.log('Registered:', data)
+      alert('Registration successful!')
+    },
+    onError: err => {
+      console.error('Signup error:', err)
+    }
+  })
+
+  // ========== Handlers ==========
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!agreed) {
+      alert('Please accept the terms.')
+      return
+    }
+    handleSignUp()
+  }
+
+  // ========== Render ==========
   return (
     <div className='flex bs-full justify-center'>
       <div
         className={classnames(
           'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
-          {
-            'border-ie': settings.skin === 'bordered'
-          }
+          { 'border-ie': settings.skin === 'bordered' }
         )}
       >
         <RegisterIllustration src={characterIllustration} alt='character-illustration' />
@@ -104,7 +127,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
       </div>
       <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
         <Link
-          href={getLocalizedUrl('/login', locale as Locale)}
+          href={getLocalizedUrl('/login', locale as string)}
           className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'
         >
           <Logo />
@@ -114,14 +137,48 @@ const Register = ({ mode }: { mode: SystemMode }) => {
             <Typography variant='h4'>Adventure starts here 🚀</Typography>
             <Typography>Make your app management easy and fun!</Typography>
           </div>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-6'>
-            <CustomTextField autoFocus fullWidth label='Username' placeholder='Enter your username' />
-            <CustomTextField fullWidth label='Email' placeholder='Enter your email' />
+          <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-6'>
+            <CustomTextField
+              autoFocus
+              fullWidth
+              name='first_name'
+              label='First Name'
+              placeholder='Enter your first name'
+              value={formData.first_name}
+              onChange={handleChange}
+            />
             <CustomTextField
               fullWidth
+              name='last_name'
+              label='Last Name'
+              placeholder='Enter your last name'
+              value={formData.last_name}
+              onChange={handleChange}
+            />
+            <CustomTextField
+              fullWidth
+              name='mobile'
+              label='Mobile'
+              placeholder='09123456789'
+              value={formData.mobile}
+              onChange={handleChange}
+            />
+            <CustomTextField
+              fullWidth
+              name='email'
+              label='Email'
+              placeholder='Enter your email'
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <CustomTextField
+              fullWidth
+              name='password'
               label='Password'
               placeholder='············'
               type={isPasswordShown ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleChange}
               slotProps={{
                 input: {
                   endAdornment: (
@@ -134,8 +191,17 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                 }
               }}
             />
+            <CustomTextField
+              fullWidth
+              name='confirm_password'
+              label='Confirm Password'
+              placeholder='············'
+              type='password'
+              value={formData.confirm_password}
+              onChange={handleChange}
+            />
             <FormControlLabel
-              control={<Checkbox />}
+              control={<Checkbox checked={agreed} onChange={e => setAgreed(e.target.checked)} />}
               label={
                 <>
                   <span>I agree to </span>
@@ -145,12 +211,17 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                 </>
               }
             />
-            <Button fullWidth variant='contained' type='submit'>
-              Sign Up
+            <Button fullWidth variant='contained' type='submit' disabled={isPending}>
+              {isPending ? 'Registering...' : 'Sign Up'}
             </Button>
+            {error && (
+              <Typography color='error.main' variant='body2'>
+                Registration failed. Please try again.
+              </Typography>
+            )}
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>Already have an account?</Typography>
-              <Typography component={Link} href={getLocalizedUrl('/login', locale as Locale)} color='primary.main'>
+              <Typography component={Link} href={getLocalizedUrl('/login', locale as string)} color='primary.main'>
                 Sign in instead
               </Typography>
             </div>

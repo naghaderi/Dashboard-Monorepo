@@ -56,10 +56,10 @@ type Mutation {
   sendOtp(input: SendOtpInput!): OtpResponseEntity!
   checkOtp(input: CheckOtpInput!): TokenResponse!
   signUp(input: SignUpInput!): TokenResponse!
-  signIn(input: LoginInput!): TokenResponse!
 }
 
 input SendOtpInput {
+  username: String!
   mobile: String!
 }
 
@@ -75,9 +75,4 @@ input SignUpInput {
   mobile: String!
   password: String!
   confirm_password: String!
-}
-
-input LoginInput {
-  email: String!
-  password: String!
 }

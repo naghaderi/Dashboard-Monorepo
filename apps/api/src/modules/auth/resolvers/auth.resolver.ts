@@ -4,7 +4,6 @@ import { OtpResponseEntity } from "src/modules/user/entities/otp-response.output
 import { TokenResponse } from "../dto/token-response.output";
 import { SignUpInput } from "../dto/signUp.input";
 import { AuthService } from "../services/auth.service";
-import { LoginInput } from "../dto/signIn.input";
 import { Public } from "src/common/decorators/public.decorator";
 
 @Resolver()
@@ -32,11 +31,5 @@ export class AuthResolver {
   @Public()
   async signUp(@Args("input") signUp: SignUpInput) {
     return this.authService.signUp(signUp);
-  }
-
-  @Mutation(() => TokenResponse)
-  @Public()
-  async signIn(@Args("input") login: LoginInput) {
-    return this.authService.signIn(login);
   }
 }

@@ -144,7 +144,7 @@ const RegisterV2 = ({ mode }: { mode: SystemMode }) => {
               control={<Checkbox />}
               label={
                 <>
-                  <span>I agree to </span>
+                  <span>I agree to</span>
                   <Link className='text-primary' href='/' onClick={e => e.preventDefault()}>
                     privacy policy & terms
                   </Link>
@@ -152,7 +152,7 @@ const RegisterV2 = ({ mode }: { mode: SystemMode }) => {
               }
             />
             <Button fullWidth variant='contained' type='submit'>
-              Sign Up
+              Sign Up2222
             </Button>
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>Already have an account?</Typography>

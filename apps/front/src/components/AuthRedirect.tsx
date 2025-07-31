@@ -1,25 +1,21 @@
 'use client'
 
-// Next Imports
 import { redirect, usePathname } from 'next/navigation'
-
-// Type Imports
-import type { Locale } from '@configs/i18n'
-
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
-// Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 
-const AuthRedirect = ({ lang }: { lang: Locale }) => {
-  const pathname = usePathname()
+import type { Locale } from '@configs/i18n'
 
-  // ℹ️ Bring me `lang`
+import themeConfig from '@configs/themeConfig'
+
+const AuthRedirect = ({ lang }: { lang: Locale }) => {
+  // ======== Get the current pathname ========
+  const pathname = usePathname()
+  // ======== Define the redirect URLs ========
   const redirectUrl = `/${lang}/login?redirectTo=${pathname}`
   const login = `/${lang}/login`
   const homePage = getLocalizedUrl(themeConfig.homePageUrl, lang)
 
+  // ======== Check if the user is authenticated ========
   return redirect(pathname === login ? login : pathname === homePage ? login : redirectUrl)
 }
 
